@@ -1,0 +1,53 @@
+{
+    "rules": {
+        "users": {
+            "$uid": {
+                ".read": "$uid === auth.uid",
+                ".write": "$uid === auth.uid",
+                "plans": {
+                    "$planId": {
+                        ".validate": "newData.hasChildren(['id', 'userId', 'title', 'description', 'projectDescription', 'timeline', 'createdAt', 'updatedAt']) && newData.child('id').isString() && newData.child('userId').isString() && newData.child('title').isString() && newData.child('description').isString() && newData.child('projectDescription').isString() && newData.child('timeline').isString() && newData.child('createdAt').isNumber() && newData.child('updatedAt').isNumber()",
+                        "phases": {
+                            "$phaseIndex": {
+                                ".validate": "newData.hasChildren(['id', 'name', 'duration', 'status', 'description', 'deliverables']) && newData.child('id').isString() && newData.child('name').isString() && newData.child('duration').isString() && newData.child('status').isString() && newData.child('description').isString()"
+                            }
+                        },
+                        "techStack": {
+                            ".validate": "newData.hasChildren(['backend', 'frontend', 'database', 'deployment', 'other'])",
+                            "backend": {
+                                "$index": {
+                                    ".validate": "newData.isString()"
+                                }
+                            },
+                            "frontend": {
+                                "$index": {
+                                    ".validate": "newData.isString()"
+                                }
+                            },
+                            "database": {
+                                "$index": {
+                                    ".validate": "newData.isString()"
+                                }
+                            },
+                            "deployment": {
+                                "$index": {
+                                    ".validate": "newData.isString()"
+                                }
+                            },
+                            "other": {
+                                "$index": {
+                                    ".validate": "newData.isString()"
+                                }
+                            }
+                        },
+                        "recommendations": {
+                            "$recIndex": {
+                                ".validate": "newData.hasChildren(['id', 'category', 'title', 'description', 'priority']) && newData.child('id').isString() && newData.child('category').isString() && newData.child('title').isString() && newData.child('description').isString() && newData.child('priority').isString()"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
