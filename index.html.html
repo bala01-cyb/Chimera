@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Chimera | HQA Command Center v3.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        // Semantic Colors mapped to CSS Variables
+                        t_primary: 'var(--text-primary)',
+                        t_secondary: 'var(--text-secondary)',
+                        t_tertiary: 'var(--text-tertiary)',
+                        bg_body: 'var(--bg-color)',
+                        glass_panel: 'var(--glass-bg)',
+                        glass_border: 'var(--glass-border)',
+
+                        // Accents (Dynamic)
+                        neon_teal: 'var(--accent-teal)',
+                        neon_amber: 'var(--accent-amber)',
+                        neon_crimson: 'var(--accent-crimson)',
+                        neon_purple: 'var(--accent-purple)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* DARK MODE (DEFAULT) */
+            --bg-color: #050505;
+            --text-primary: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            /* Gray 400 */
+            --text-tertiary: #4B5563;
+            /* Gray 600 */
+
+            --glass-bg: rgb(35, 33, 192);
+            --glass-border: rgba(28, 29, 100, 0.61);
+
+            --input-bg: rgba(0, 0, 0, 0.4);
+            --input-border: rgba(255, 255, 255, 0.1);
+
+            --accent-teal: #00F0FF;
+            --accent-amber: #FFB800;
+            --accent-crimson: #FF2E54;
+            --accent-purple: #D946EF;
+
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --card-hover: rgba(0, 240, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            /* LIGHT MODE (PREMIUM SLATE) */
+            --bg-color: #F0F4F8;
+            /* Light Blue-Grey */
+            --text-primary: #102A43;
+            /* Deep Navy */
+            --text-secondary: #486581;
+            /* Slate Blue */
+            --text-tertiary: #9FB3C8;
+            /* Light Steel */
+
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(200, 210, 230, 0.4);
+
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-border: rgba(180, 190, 210, 0.5);
+
+            --accent-teal: #0987A0;
+            /* Darker Teal */
+            --accent-amber: #B45309;
+            --accent-crimson: #D32F2F;
+            --accent-purple: #805AD5;
+
+            --card-shadow: 0 8px 32px 0 rgba(100, 110, 140, 0.15);
+            --card-hover: rgba(9, 135, 160, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
+            perspective: 1000px;
+            overflow: hidden;
+            background-image: var(--bg-gradient);
+        }
+
+        /* Dynamic Background Gradients */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, var(--accent-teal) 0%, transparent 10%);
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: -1;
+            animation: pulse-bg 10s infinite alternate;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tilt-card:hover {
+            transform: translateY(-2px) scale(1.005);
+            box-shadow: 0 20px 40px var(--card-hover);
+            border-color: var(--accent-teal);
+            z-index: 20;
+        }
+
+        /* Inputs */
+        input,
+        textarea,
+        select {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--text-primary) !important;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent-teal) !important;
+        }
+
+        /* Scrollbar */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes pulse-bg {
+            0% {
+                opacity: 0.03;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0.08;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Dynamic Text Colors via Tailwind/CSS Vars */
+        .text-neon {
+            color: var(--accent-teal);
+        }
+
+        .border-neon {
+            border-color: var(--accent-teal);
+        }
+
+        .bg-neon-low {
+            background-color: rgba(0, 240, 255, 0.1);
+        }
+
+        [data-theme="light"] .bg-neon-low {
+            background-color: rgba(9, 135, 160, 0.1);
+        }
+    </style>
+</head>
+
+<body class="h-screen p-6 flex flex-col gap-6 select-none" onmousemove="handleMouseMove(event)">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center px-4 pl-20 transition-all">
+        <div class="flex items-center gap-4">
+            <!-- Logo with dynamic gradient text -->
+            <div class="text-3xl font-extrabold tracking-tighter"
+                style="background: linear-gradient(to right, var(--accent-teal), var(--text-primary)); -webkit-background-clip: text; color: transparent;">
+                CHIMERA <span class="text-xs ml-2 align-top text-t_secondary font-mono font-normal">v3.1
+                    ENTERPRISE</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <button onclick="openConsultant()"
+                class="px-4 py-2 rounded-lg border border-neon_purple/30 text-neon_purple text-xs font-mono uppercase tracking-wider hover:bg-neon_purple/10 transition-all flex items-center gap-2 group">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                AI Consultant
+            </button>
+            <button onclick="toggleMissionModal()"
+                class="px-4 py-2 rounded-lg border border-neon_teal/30 text-neon_teal text-xs font-mono uppercase tracking-wider hover:bg-neon_teal/10 transition-all flex items-center gap-2 group">
+                + New Mission
+            </button>
+            <div id="system-status"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-glass_border bg-glass_panel">
+                <div class="w-2 h-2 rounded-full bg-neon_teal animate-pulse"></div>
+                <span class="text-xs font-mono text-neon_teal">OPTIMAL</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-neon_teal to-blue-600 flex items-center justify-center text-sm font-bold text-white border border-white/20 cursor-pointer hover:ring-2 ring-neon_teal/50 transition-all shadow-lg"
+                    onclick="toggleModal('profile-modal')" id="header-avatar">U</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-full gap-6">
+
+        <!-- SIDEBAR -->
+        <nav
+            class="w-16 flex flex-col items-center gap-8 py-6 glass-panel rounded-full h-[calc(100vh-8rem)] ml-4 border-glass_border">
+            <div class="p-2.5 rounded-xl bg-neon-low text-neon_teal cursor-pointer hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,0,0,0.1)]"
+                onclick="switchView('dashboard')">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+            </div>
+
+            <div class="p-2 text-t_secondary hover:text-neon_teal cursor-pointer transition-colors"
+                onclick="switchView('profile')" title="Profile"><svg class="w-6 h-6" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg></div>
+            <div class="p-2 text-t_secondary hover:text-neon_teal cursor-pointer transition-colors"
+                onclick="toggleModal('settings-modal')" title="Settings"><svg class="w-6 h-6" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg></div>
+            <div class="mt-auto p-2 text-neon_crimson hover:opacity-80 cursor-pointer" onclick="clearHistory()"
+                title="Clear Session"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg></div>
+        </nav>
+
+        <!-- Main Grid (Bento) -->
+        <main id="dashboard-view"
+            class="grid grid-cols-4 grid-rows-4 gap-6 w-full h-[calc(100vh-8rem)] transition-opacity duration-300">
+
+            <!-- Topology -->
+            <div class="glass-panel tilt-card rounded-2xl p-6 row-span-4 flex flex-col overflow-hidden relative group">
+                <div class="absolute inset-0 bg-gradient-to-b from-neon_teal/5 to-transparent pointer-events-none">
+                </div>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xs font-bold text-t_secondary uppercase tracking-widest">Topology</h3>
+                    <button onclick="addNewNode()"
+                        class="text-[10px] px-2 py-1 rounded border border-glass_border text-t_secondary hover:text-t_primary hover:bg-glass_border transition-colors cursor-pointer z-20">+
+                        Add Node</button>
+                </div>
+                <div class="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-hide font-mono text-sm text-t_primary relative"
+                    id="blueprint-tree">
+                    <!-- Nodes will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Active Workspace -->
+            <div
+                class="glass-panel tilt-card rounded-2xl col-span-2 row-span-3 p-6 relative overflow-hidden flex flex-col">
+                <div class="flex justify-between items-center mb-4 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-neon_teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        <h3 class="font-mono text-neon_teal font-bold" id="file-name">System_Root</h3>
+                        <span class="text-xs text-t_secondary" id="file-status">Active</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="deployNode()"
+                            class="px-2 py-1 text-[10px] bg-neon_teal/20 text-neon_teal border border-neon_teal/50 rounded hover:bg-neon_teal/40 transition-colors">DEPLOY
+                            NODE</button>
+                    </div>
+                </div>
+                <!-- Code Preview Area -->
+                <div class="code-preview p-5 rounded-xl font-mono text-sm h-full overflow-hidden relative flex-1 border-l-2 border-neon_teal bg-black/40 backdrop-blur-sm shadow-inner"
+                    style="background-color: var(--input-bg);">
+                    <pre id="code-content"
+                        class="h-full overflow-auto scrollbar-hide text-t_secondary opacity-90 text-xs leading-relaxed"></pre>
+                </div>
+            </div>
+
+            <!-- DYNAMIC SCHEDULE -->
+            <div class="col-span-1 row-span-2 space-y-4">
+                <div class="glass-panel tilt-card rounded-2xl p-6 h-full flex flex-col relative overflow-hidden">
+                    <h3 class="text-xs font-bold text-t_secondary uppercase tracking-widest mb-4">Timeline</h3>
+                    <div class="space-y-4 relative flex-1 overflow-auto scrollbar-hide" id="schedule-container">
+                        <div class="text-xs text-center text-t_secondary italic mt-10">No active mission.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESOURCE RECOMMENDER -->
+            <div
+                class="col-span-1 row-span-1 glass-panel tilt-card rounded-2xl p-5 flex flex-col justify-between cursor-pointer border-l-4 border-neon_teal hover:bg-glass_border transition-colors">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-neon_teal uppercase tracking-widest">Knowledge Base</span>
+                    <svg class="w-4 h-4 text-neon_teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="mt-2 space-y-2" id="resource-links">
+                    <p class="text-[10px] text-t_secondary italic">Awaiting inputs...</p>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div
+                class="glass-panel tilt-card rounded-2xl col-span-3 row-span-1 p-5 font-mono text-xs overflow-hidden relative">
+                <div
+                    class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon_teal to-transparent opacity-50">
+                </div>
+                <div class="space-y-2 h-full overflow-y-auto pb-2 scrollbar-hide text-t_primary" id="log-container">
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- NEW PROFILE ROOM VIEW -->
+    <section id="profile-view"
+        class="hidden w-full h-[calc(100vh-8rem)] glass-panel rounded-2xl p-8 relative overflow-hidden flex flex-col">
+        <!-- Background FX -->
+        <div
+            class="absolute top-0 right-0 w-96 h-96 bg-neon_teal/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none">
+        </div>
+
+        <div class="flex justify-between items-center mb-10 z-10">
+            <h2 class="text-3xl font-extrabold tracking-tighter text-t_primary">COMMANDER'S QUARTERS</h2>
+            <button onclick="switchView('dashboard')"
+                class="px-6 py-2 rounded-full border border-glass_border hover:bg-white/5 text-t_secondary hover:text-white transition-all text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Return to Bridge
+            </button>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 h-full z-10">
+            <!-- Avatar Column -->
+            <div
+                class="col-span-4 flex flex-col items-center justify-center p-8 bg-black/20 rounded-2xl border border-glass_border relative overflow-hidden">
+                <div class="relative group">
+                    <div
+                        class="w-48 h-48 rounded-full bg-gradient-to-tr from-neon_teal to-blue-500 p-1 cursor-pointer shadow-[0_0_40px_rgba(0,240,255,0.3)] group-hover:shadow-[0_0_60px_rgba(0,240,255,0.5)] transition-shadow duration-500">
+                        <div class="w-full h-full rounded-full bg-black flex items-center justify-center text-6xl font-bold text-white relative z-10 bg-opacity-90"
+                            id="room-avatar">U</div>
+                    </div>
+                    <div class="absolute inset-0 rounded-full border-2 border-white/20 animate-ping opacity-20"></div>
+                </div>
+                <h3 class="mt-6 text-xl font-bold text-t_primary" id="room-name-display">User Architect</h3>
+                <span class="text-neon_teal font-mono text-xs uppercase tracking-widest mt-1">Level 4 Clearance</span>
+            </div>
+
+            <!-- Editable Data Column -->
+            <div class="col-span-8 flex flex-col gap-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs text-t_secondary uppercase font-bold tracking-wider">Designation
+                            (Name)</label>
+                        <input type="text" id="profile-name"
+                            class="w-full bg-glass_panel p-4 rounded-xl border border-glass_border text-t_primary focus:border-neon_teal transition-colors"
+                            value="User Architect">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs text-t_secondary uppercase font-bold tracking-wider">Organization</label>
+                        <input type="text" id="profile-company"
+                            class="w-full bg-glass_panel p-4 rounded-xl border border-glass_border text-t_primary focus:border-neon_teal transition-colors"
+                            value="Project Chimera">
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-xl bg-neon_purple/5 border border-neon_purple/20">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-neon_purple font-bold text-sm uppercase tracking-widest">Operational Statistics
+                        </h4>
+                        <span class="text-[10px] text-t_secondary font-mono bg-black/30 px-2 py-1 rounded">ID: <span
+                                id="profile-id">USR-8821</span></span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-black/20 rounded-lg">
+                            <div class="text-2xl font-bold text-t_primary" id="stat-missions">0</div>
+                            <div class="text-[9px] text-t_secondary uppercase mt-1">Missions Complete</div>
+                        </div>
+                        <div class="p-4 bg-black/20 rounded-lg">
+                            <div class="text-2xl font-bold text-neon_teal">98%</div>
+                            <div class="text-[9px] text-t_secondary uppercase mt-1">Architecture Score</div>
+                        </div>
+                        <div class="p-4 bg-black/20 rounded-lg">
+                            <div class="text-2xl font-bold text-neon_amber">1.2s</div>
+                            <div class="text-[9px] text-t_secondary uppercase mt-1">Avg Latency</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-auto flex justify-end">
+                    <button onclick="saveProfile()"
+                        class="px-8 py-3 bg-neon_teal hover:bg-white text-black font-bold rounded-xl shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all transform hover:scale-105">SAVE
+                        CONFIGURATION</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-[500px] rounded-2xl p-8 border border-glass_border shadow-2xl relative">
+            <button onclick="toggleModal('settings-modal')"
+                class="absolute top-4 right-4 text-t_secondary hover:text-bg_primary">✕</button>
+            <h2 class="text-xl font-bold mb-6 text-t_primary">System Settings</h2>
+
+            <!-- Appearance -->
+            <div class="mb-6">
+                <h3 class="text-[10px] text-t_secondary uppercase font-bold tracking-widest mb-3">Appearance</h3>
+                <div class="flex items-center justify-between p-4 rounded-xl border border-glass_border bg-glass_panel">
+                    <span class="text-sm font-medium text-t_primary">Interface Theme</span>
+                    <button onclick="toggleTheme()"
+                        class="px-4 py-1.5 rounded-lg bg-t_primary text-bg_body font-bold text-xs hover:opacity-80 transition-opacity"
+                        id="theme-btn">Switch to Light</button>
+                </div>
+            </div>
+
+            <!-- API & Data -->
+            <div class="mb-6">
+                <h3 class="text-[10px] text-t_secondary uppercase font-bold tracking-widest mb-3">Configuration</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-t_secondary block mb-1">API Key</label>
+                        <input type="password" value="sk-........................"
+                            class="w-full rounded-lg p-2.5 text-sm font-mono">
+                    </div>
+                    <div class="flex justify-between items-center pt-2">
+                        <span class="text-sm text-t_secondary">Clear Local Data</span>
+                        <button onclick="clearHistory()"
+                            class="text-xs text-neon_crimson font-bold hover:underline">RESET SYSTEM</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONSULTANT & MISSION MODALS -->
+    <div id="mission-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="glass-panel w-[600px] rounded-2xl p-8 transform scale-95 transition-transform duration-300 relative border border-neon_teal/30 shadow-[0_0_50px_rgba(0,240,255,0.1)]">
+            <button onclick="toggleMissionModal()"
+                class="absolute top-4 right-4 text-t_secondary hover:text-t_primary">✕</button>
+            <h2 class="text-xl font-bold mb-2 text-t_primary">Initialize New Mission</h2>
+            <textarea id="story-text" class="w-full h-32 rounded-xl p-4 text-sm mt-4 resize-none font-mono"
+                placeholder="// Describe your user story here..."></textarea>
+            <button onclick="submitMission()"
+                class="w-full py-3 rounded-xl bg-neon_teal text-black font-bold text-sm mt-6 hover:bg-white transition-colors">INITIATE
+                ARCHITECT</button>
+        </div>
+    </div>
+    <div id="consultant-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="glass-panel w-[500px] h-[600px] rounded-2xl p-6 relative border border-neon_purple/30 flex flex-col shadow-[0_0_50px_rgba(217,70,239,0.15)]">
+            <div class="flex justify-between items-center mb-4 border-b border-glass_border pb-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-neon_purple/10 flex items-center justify-center text-neon_purple border border-neon_purple/50">
+                        AI</div>
+                    <div>
+                        <h2 class="text-lg font-bold text-t_primary">The Consultant</h2>
+                        <div class="text-[10px] text-neon_purple uppercase tracking-wider">Strategic Advisor</div>
+                    </div>
+                </div>
+                <button onclick="closeConsultant()" class="text-t_secondary hover:text-t_primary">✕</button>
+            </div>
+
+            <div id="consultant-chat" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 scrollbar-hide text-sm">
+                <div class="consultant-bubble">
+                    Hello. I am your Strategic Advisor. I can help refine your requirements, suggest architecture
+                    patterns, or answer questions about the platform. How can I assist?
+                </div>
+            </div>
+
+            <div class="mt-auto pt-4 border-t border-glass_border">
+                <form onsubmit="handleConsultantSubmit(event)" class="flex gap-2">
+                    <input type="text" id="consultant-input" placeholder="Ask about security, scale, or status..."
+                        class="flex-1 rounded-lg p-3 text-xs bg-black/30 border border-glass_border focus:border-neon_purple text-t_primary">
+                    <button type="submit"
+                        class="px-4 py-2 rounded-lg bg-neon_purple/20 text-neon_purple border border-neon_purple/50 hover:bg-neon_purple/40 font-bold text-xs transition-colors">SEND</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIC -->
+    <script>
+        // --- SMART CONSULTANT LOGIC ---
+        const KNOWLEDGE_BASE = {
+            'security': "For high security, I recommend implementing **OAuth2 with rotating JWTs**. We should also ensure all database connections are encrypted at rest and in transit using TLS 1.3.",
+            'scale': "To handle high traffic, we should use a **Microservices Architecture** with a load balancer (Nginx) and horizontal pod autoscaling in Kubernetes. Redis caching will reduce DB load.",
+            'database': "For this type of data, **PostgreSQL** is the reliable choice for relational integrity. If you need unstructured logging, we can add a MongoDB instance.",
+            'stack': "The current stack is **FastAPI** (Python) for High-Performance Async I/O, **React** for the Frontend, and **PostgreSQL** for persistence.",
+            'deployment': "We deploy using Docker containers orchestrated by the **Integration Agent**. Each build runs through a sandbox E2E test before being promoted to Staging.",
+            'error': "If an error occurs, the **Self-Healing Loop** activates. The Architect Agent reads the logs, adjusts the Blueprint code, and attempts to rebuild automatically.",
+            'help': "I can assist with: \n1. **Architecture Decisions** (e.g., 'What DB should I use?')\n2. **Security Best Practices**\n3. **Platform status**\n4. **Refining your User Story**.",
+            'status': "System is currently **OPTIMAL**. All agents are online and the HQA Refinement Loop is active."
+        };
+
+        function handleConsultantSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('consultant-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addChatBubble(text, 'user');
+            input.value = '';
+
+            const lowerText = text.toLowerCase();
+            let response = "I'm analyzing that specific request. Could you clarify if this relates to **Security**, **Architecture**, or **Deployment**? I can give the best advice in those areas.";
+
+            for (const [key, value] of Object.entries(KNOWLEDGE_BASE)) {
+                if (lowerText.includes(key)) {
+                    response = value;
+                    break;
+                }
+            }
+
+            setTimeout(() => {
+                const typingId = addChatBubble("Analyzing...", 'ai', true);
+                setTimeout(() => {
+                    removeChatBubble(typingId);
+                    addChatBubble(response, 'ai');
+                }, 800 + Math.random() * 1000);
+            }, 200);
+        }
+
+        function addChatBubble(text, sender, isTyping = false) {
+            const container = document.getElementById('consultant-chat');
+            const div = document.createElement('div');
+            const id = 'bubble-' + Date.now();
+            div.id = id;
+
+            if (sender === 'user') {
+                div.className = "bg-glass_border text-t_primary p-3 rounded-xl rounded-tr-none ml-auto max-w-[80%] text-xs mb-2 border border-glass_border";
+            } else {
+                div.className = "consultant-bubble !mb-2 max-w-[90%]";
+                if (isTyping) div.className += " animate-pulse opacity-70";
+            }
+
+            div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-neon_purple">$1</span>').replace(/\n/g, '<br>');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function removeChatBubble(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        // --- Persistence Logic ---
+        const userProfile = JSON.parse(localStorage.getItem('chimera_profile')) || { name: 'User Architect', company: 'Project Chimera', id: 'USR-8821' };
+        // Initial setup for profile view
+        document.getElementById('profile-name').value = userProfile.name;
+        document.getElementById('profile-company').value = userProfile.company;
+        document.getElementById('profile-id').innerText = userProfile.id; // Corrected ID targeting for View
+        document.getElementById('room-avatar').innerText = userProfile.name.charAt(0);
+        document.getElementById('room-name-display').innerText = userProfile.name;
+        document.getElementById('header-avatar').innerText = userProfile.name.charAt(0);
+
+        // Load History
+        let missionHistory = JSON.parse(localStorage.getItem('chimera_missions')) || [];
+
+        // Load Theme
+        let currentTheme = localStorage.getItem('chimera_theme') || 'dark';
+        if (currentTheme) document.body.setAttribute('data-theme', currentTheme);
+        updateThemeBtn();
+
+        function updateThemeBtn() {
+            const btn = document.getElementById('theme-btn');
+            if (currentTheme === 'dark') {
+                btn.innerText = 'Switch to Light';
+                btn.className = "px-4 py-1.5 rounded-lg bg-gray-200 text-black font-bold text-xs hover:bg-white transition-opacity";
+            } else {
+                btn.innerText = 'Switch to Dark';
+                btn.className = "px-4 py-1.5 rounded-lg bg-gray-900 text-white font-bold text-xs hover:bg-black transition-opacity";
+            }
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('chimera_theme', currentTheme);
+            updateThemeBtn();
+        }
+
+        // --- View Switching Logic ---
+        function switchView(viewName) {
+            const dashboard = document.getElementById('dashboard-view');
+            const profile = document.getElementById('profile-view');
+
+            if (viewName === 'profile') {
+                dashboard.classList.add('hidden');
+                dashboard.classList.add('opacity-0');
+                profile.classList.remove('hidden');
+                // Refresh Stats in Room
+                document.getElementById('stat-missions').innerText = missionHistory.length;
+                document.getElementById('room-name-display').innerText = userProfile.name;
+                document.getElementById('room-avatar').innerText = userProfile.name.charAt(0);
+            } else {
+                profile.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                setTimeout(() => dashboard.classList.remove('opacity-0'), 50);
+            }
+        }
+
+        function saveProfile() {
+            userProfile.name = document.getElementById('profile-name').value;
+            userProfile.company = document.getElementById('profile-company').value;
+            localStorage.setItem('chimera_profile', JSON.stringify(userProfile));
+
+            // Update UI elements
+            document.getElementById('room-avatar').innerText = userProfile.name.charAt(0);
+            document.getElementById('room-name-display').innerText = userProfile.name;
+            document.getElementById('header-avatar').innerText = userProfile.name.charAt(0);
+
+            addLog('SYSTEM', 'Profile Configuration Updated.', 'text-neon_teal');
+        }
+
+        function clearHistory() {
+            if (confirm('Reset all system data?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // --- Schedule & Resources Logic ---
+        function generateSchedule(topic) {
+            const container = document.getElementById('schedule-container');
+            const resources = document.getElementById('resource-links');
+            container.innerHTML = '';
+            resources.innerHTML = '';
+
+            const phases = [
+                { name: '1. Ingestion & Legacy Analysis', duration: '15s', color: 'bg-neon_purple' },
+                { name: '2. Blueprint Creation', duration: '45s', color: 'bg-neon_teal' },
+                { name: '3. Parallel Execution (T2)', duration: '2m', color: 'bg-blue-500' },
+                { name: '4. Local Quality Gates', duration: '1m', color: 'bg-neon_amber' },
+                { name: '5. Sandbox Integration', duration: '30s', color: 'bg-green-500' },
+                { name: '6. Global E2E Validation', duration: '1m 30s', color: 'bg-neon_crimson' },
+                { name: '7. Final Quality Check', duration: 'Instant', color: 'bg-t_primary' }
+            ];
+
+            phases.forEach((p, i) => {
+                setTimeout(() => {
+                    const item = document.createElement('div');
+                    item.className = 'flex gap-3 items-center group animate-pulse-now';
+                    // Dynamic color handling for Tailwind classes vs CSS vars
+                    let bgClass = p.color;
+                    let styleAttr = '';
+                    if (p.color.startsWith('bg-neon')) {
+                        // Keep class, but ensure style fallback if needed
+                    } else if (p.color === 'bg-t_primary') {
+                        // handle primary text color
+                    }
+
+                    item.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <div class="w-3 h-3 rounded-full ${p.color} border border-black z-10 shadow-lg relative">
+                                <div class="absolute inset-0 rounded-full animate-ping opacity-20 ${p.color}"></div>
+                            </div>
+                            <div class="h-6 w-0.5 bg-glass_border mt-1"></div>
+                        </div>
+                        <div class="pb-4">
+                            <div class="text-xs font-bold text-t_primary">${p.name}</div>
+                            <div class="text-[10px] text-t_secondary">Est: ${p.duration}</div>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                    container.scrollTop = container.scrollHeight;
+                }, i * 600);
+            });
+
+            const links = [
+                { name: 'FastAPI Spec', url: '#' },
+                { name: 'React Patterns', url: '#' },
+                { name: 'PostgreSQL Opt', url: '#' }
+            ];
+
+            setTimeout(() => {
+                links.forEach(l => {
+                    const a = document.createElement('div');
+                    a.className = "flex items-center gap-2 text-xs text-neon_teal hover:underline cursor-pointer";
+                    a.innerHTML = `<span>></span> ${l.name}`;
+                    resources.appendChild(a);
+                })
+            }, 2000);
+        }
+
+        // --- Standard Logic ---
+        function toggleMissionModal() { toggleModal('mission-modal'); }
+        function openConsultant() { toggleModal('consultant-modal'); }
+        function closeConsultant() { toggleModal('consultant-modal'); }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function submitMission() {
+            const text = document.getElementById('story-text').value;
+            if (text) {
+                missionHistory.push({ date: new Date(), story: text });
+                localStorage.setItem('chimera_missions', JSON.stringify(missionHistory));
+                generateSchedule(text);
+
+                // Logs
+                addLog('SYSTEM', 'User Story Ingested. Initializing HQA Refinement Loop...', 'text-t_primary');
+                setTimeout(() => addLog('LEGACY', 'Scanning for constraints...', 'text-neon_purple'), 1000);
+                setTimeout(() => addLog('ARCHITECT', 'Generating Blueprint...', 'text-neon_teal'), 2500);
+            }
+            toggleModal('mission-modal');
+        }
+
+        function addLog(agent, msg, colorClass) {
+            const logContainer = document.getElementById('log-container');
+            const row = document.createElement('div');
+            row.className = "py-1 border-b border-glass_border flex gap-2";
+            row.innerHTML = `<span class="font-bold w-20 shrink-0 ${colorClass.replace('text-', 'text-')} opacity-80" style="color: var(--${colorClass.replace('text-neon_', 'accent-').replace('text-', 'text-')})">${agent}</span> <span class="text-t_secondary">${msg}</span>`;
+            logContainer.prepend(row);
+        }
+
+        function handleMouseMove(e) {
+            const cards = document.querySelectorAll('.tilt-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                if (x > -50 && x < rect.width + 50 && y > -50 && y < rect.height + 50) {
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -1;
+                    const rotateY = ((x - centerX) / centerX) * 1;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                } else {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
