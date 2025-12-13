@@ -1,4 +1,4 @@
-# CHIMERA
+# CHIMERA-AI
 
 **CHIMERA — AI-Powered Software Architecture Plan Generator**
 
