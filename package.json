@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "tsx watch --clear-screen=false server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
     "check": "tsc"
@@ -45,6 +45,7 @@
     "cmdk": "^1.1.1",
     "connect-pg-simple": "^10.0.0",
     "date-fns": "^3.6.0",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.0",
     "embla-carousel-react": "^8.6.0",
@@ -80,6 +81,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",
+    "@types/express": "^5.0.6",
     "@types/node": "^20.19.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
